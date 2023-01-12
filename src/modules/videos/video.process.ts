@@ -1,41 +1,35 @@
-import fs from "fs";
-import { StatusCodes } from "http-status-codes";
-import { path } from "@ffmpeg-installer/ffmpeg";
-import ffmpeg from "fluent-ffmpeg";
-ffmpeg.setFfmpegPath(path);
+import { spawn } from "child_process";
 
-process.on("message", (payload: { tempFilePath: string; name: string }) => {
-  const { tempFilePath, name } = payload;
-  const endProcess = (endPayload: any) => {
-    const { statusCode, text } = endPayload;
-    console.log({ endPayload });
+export function runFFmpeg(input: string, output: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const ffmpeg = spawn(require("@ffmpeg-installer/ffmpeg").path, [
+      "-i",
+      input,
+      "-vf",
+      "scale=640:480",
+      "-preset",
+      "slow",
+      "-crf",
+      "28",
+      output,
+    ]);
+    let outputData = "";
 
-    fs.unlink(tempFilePath, (err) => {
-      if (err) {
-        process.send?.({
-          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-          text: err.message,
-        });
+    ffmpeg.stdout.on("data", (data: Buffer) => {
+      outputData += data.toString();
+    });
+
+    ffmpeg.stderr.on("error", (data: Buffer) => {
+      console.log(data.toString());
+      reject(data.toString());
+    });
+
+    ffmpeg.on("close", (code: number) => {
+      if (code === 0) {
+        resolve(outputData);
+      } else {
+        reject(`child process exited with code ${code}`);
       }
     });
-    // Format response so it fits the api response
-    process.send?.({ statusCode, text });
-    // End process
-    process.exit();
-  };
-
-  // Process video and send back the result
-  ffmpeg(tempFilePath)
-    .fps(30)
-    .addOptions(["-crf 28"])
-    .on("end", () => {
-      endProcess({ statusCode: StatusCodes.OK, text: "Success" });
-    })
-    .on("error", (err) => {
-      endProcess({
-        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-        text: err.message,
-      });
-    })
-    .save(`./temp/${name}`);
-});
+  });
+}
