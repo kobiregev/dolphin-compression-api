@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
 import Queue from "bull";
+import logger from "../../utils/logger";
 
 function runFFmpeg(input: string, output: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -21,11 +22,11 @@ function runFFmpeg(input: string, output: string): Promise<string> {
     });
 
     ffmpeg.stderr.on("error", (data: Buffer) => {
-      console.log(data.toString());
       reject(data.toString());
     });
 
     ffmpeg.on("close", (code: number) => {
+      logger.info("Finished compression");
       if (code === 0) {
         resolve(outputData);
       } else {

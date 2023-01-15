@@ -26,6 +26,7 @@ export async function compressVideoHandler(req: Request, res: Response) {
       await deleteFiles(tempFilePath, outputFilePath);
     });
 
+    logger.info("Started compression");
     await runFFmpeg(tempFilePath, outputFilePath);
 
     res.status(StatusCodes.OK).sendFile(outputFilePath);
