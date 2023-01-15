@@ -1,24 +1,22 @@
+import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import logger from "./utils/logger";
 import videoRoute from "./modules/videos/video.route";
 import helmet from "helmet";
-import fileUpload from "express-fileupload";
+
+dotenv.config()
 
 const signals = ["SIGTERM", "SIGINT"];
 const PORT = process.env.PORT || 4000;
+const {SECRET_KEY} = process.env;
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
-app.use(
-  fileUpload({
-    tempFileDir: "temp",
-    useTempFiles: true,
-  })
-);
+
 
 app.use("/api/videos", videoRoute);
 
