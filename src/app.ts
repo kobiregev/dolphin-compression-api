@@ -22,7 +22,7 @@ app.use(helmet());
 app.use("/api/videos", videoRoute);
 
 const server = app.listen(PORT, () => {
-  logger.info(`Server listening at http://localhost:${PORT}`);
+  logger.info(`Server listening at https://localhost:${PORT}`);
 });
 
 function gracefulShutdown(signal: string) {
