@@ -12,6 +12,7 @@ router.post(
   "/compress",
   [
     verifyUser,
+    // @ts-ignore
     processRequest(compressVideoSchema),
     fileUpload({
       tempFileDir: "temp",
