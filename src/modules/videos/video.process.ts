@@ -5,7 +5,8 @@ function runFFmpeg(
   input: string,
   output: string,
   width: string,
-  height: string
+  height: string,
+  compression:string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const ffmpeg = spawn(require("@ffmpeg-installer/ffmpeg").path, [
@@ -18,7 +19,7 @@ function runFFmpeg(
       "-preset",
       "fast",
       "-crf",
-      "28",
+      compression,
       "-c:a",
       "aac",
       "-b:a",
