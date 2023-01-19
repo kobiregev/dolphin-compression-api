@@ -7,10 +7,15 @@ import { VIDEO_MIME_TYPES } from "../../utils/constants";
 import { runFFmpeg } from "./video.process";
 import logger from "../../utils/logger";
 import { deleteFiles } from "./video.service";
+import { CompressVideoQuery } from "./video.schema";
 
-export async function compressVideoHandler(req: Request, res: Response) {
+export async function compressVideoHandler(
+  req: Request<{}, {}, CompressVideoQuery>,
+  res: Response
+) {
   try {
     const video = req.files?.video as UploadedFile;
+    const { width, height } = req.query;
     const tempFilePath = video?.tempFilePath;
 
     if (!video || !tempFilePath || !VIDEO_MIME_TYPES.includes(video.mimetype)) {
@@ -27,15 +32,16 @@ export async function compressVideoHandler(req: Request, res: Response) {
     });
 
     logger.info("Started compression");
-    await runFFmpeg(tempFilePath, outputFilePath);
+    await runFFmpeg(
+      tempFilePath,
+      outputFilePath,
+      width as string,
+      height as string
+    );
 
     res.status(StatusCodes.OK).sendFile(outputFilePath);
   } catch (error: any) {
     logger.error(error, `compressVideoHandler: error compression video failed`);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error?.message || "");
   }
-}
-
-export async function testQueue(req: Request, res: Response) {
-  return res.status(StatusCodes.OK).send("ok");
 }
