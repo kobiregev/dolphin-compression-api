@@ -18,7 +18,7 @@ export async function compressVideoHandler(
     const tempFilePath = video?.tempFilePath;
 
     if (!video || !tempFilePath || !VIDEO_MIME_TYPES.includes(video.mimetype)) {
-      // await deleteFiles(tempFilePath);
+      await deleteFiles(tempFilePath);
       return res.status(StatusCodes.BAD_REQUEST).send("Invalid file type");
     }
 
@@ -27,7 +27,7 @@ export async function compressVideoHandler(
     const outputFilePath = `${process.cwd()}/temp/${crypto.randomUUID()}.${fileType}`;
 
     res.on("finish", async () => {
-      // await deleteFiles(tempFilePath, outputFilePath);
+      await deleteFiles(tempFilePath, outputFilePath);
     });
 
     logger.info("Started compression");
@@ -38,8 +38,8 @@ export async function compressVideoHandler(
       height as string
     );
 
-    // res.status(StatusCodes.OK).sendFile(outputFilePath);
-    res.status(StatusCodes.OK).send('ok');
+    res.status(StatusCodes.OK).sendFile(outputFilePath);
+    // res.status(StatusCodes.OK).send('ok');
   } catch (error: any) {
     logger.error(error, `compressVideoHandler: error compression video failed`);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error?.message || "");
