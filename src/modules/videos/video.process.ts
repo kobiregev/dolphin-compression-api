@@ -14,11 +14,11 @@ function runFFmpeg(
       "-vf",
       `scale=${width}:${height}`,
       "-vcodec",
-      "libx265",
+      "libx264",
       "-preset",
       "fast",
       "-crf",
-      "28",
+      "18",
       output,
     ]);
     let outputData = "";

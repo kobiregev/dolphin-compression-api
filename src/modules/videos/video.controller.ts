@@ -1,4 +1,3 @@
-import fs from "fs";
 import crypto from "crypto";
 import { Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
@@ -40,6 +39,7 @@ export async function compressVideoHandler(
     );
 
     res.status(StatusCodes.OK).sendFile(outputFilePath);
+    // res.status(StatusCodes.OK).send('ok');
   } catch (error: any) {
     logger.error(error, `compressVideoHandler: error compression video failed`);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error?.message || "");
