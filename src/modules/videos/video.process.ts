@@ -1,13 +1,20 @@
 import { spawn } from "child_process";
 import logger from "../../utils/logger";
-
-function runFFmpeg(input: string, output: string): Promise<string> {
+// ("-i input.mp4 -vcodec libx265 -crf 28 output.mp4");
+function runFFmpeg(
+  input: string,
+  output: string,
+  width: string,
+  height: string
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const ffmpeg = spawn(require("@ffmpeg-installer/ffmpeg").path, [
       "-i",
       input,
       "-vf",
-      "scale=640:480",
+      `scale=${width}:${height}`,
+      "-vcodec",
+      "libx265",
       "-preset",
       "fast",
       "-crf",
