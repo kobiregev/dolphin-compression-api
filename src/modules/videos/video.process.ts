@@ -18,7 +18,15 @@ function runFFmpeg(
       "-preset",
       "fast",
       "-crf",
-      "18",
+      "28",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "128k",
+      "-aspect",
+      "1",
+      // '-s',
+      // `${width}`,
       output,
     ]);
     let outputData = "";
