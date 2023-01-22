@@ -51,8 +51,8 @@ export async function compressVideoHandler(
     const videoStats = await stat(outputFilePath);
     const fileSize = filesize(videoStats.size, { base: 2, standard: "jedec" }).toString();
     res.setHeader("fileSize", fileSize);
-    // res.status(StatusCodes.OK).sendFile(outputFilePath);
-    res.status(StatusCodes.OK).send("ok");
+    res.status(StatusCodes.OK).sendFile(outputFilePath);
+    // res.status(StatusCodes.OK).send("ok");
   } catch (error: any) {
     logger.error(error, `compressVideoHandler: error compression video failed`);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error?.message || "");
