@@ -4,24 +4,33 @@ import { StatusCodes } from "http-status-codes";
 import { UploadedFile } from "express-fileupload";
 import logger from "../../utils/logger";
 import {
+  COMPRESS_MIME_TYPES,
   DEFAULT_COMPRESSION_PERCENTAGE,
-  GIF_MIME_TYPES,
 } from "../../utils/constants";
 import { deleteFiles, getFileSize } from "../../services/file";
 import { runFFmpeg } from "../../services/ffmpeg.process";
+import { getCommand } from "../../services/ffmpeg.commands";
+import { CompressFileQuery } from "./compress.schema";
 
-export async function compressGifHandler(req: Request, res: Response) {
+export async function compressFileHandler(
+  req: Request<{}, {}, {}, CompressFileQuery>,
+  res: Response
+) {
   try {
-    const gif = req.files?.gif as UploadedFile;
+    const file = req.files?.file as UploadedFile;
     const {
       width,
       height,
       compression = DEFAULT_COMPRESSION_PERCENTAGE,
     } = req.query;
 
-    const tempFilePath = gif?.tempFilePath;
+    const tempFilePath = file?.tempFilePath;
 
-    if (!gif || !tempFilePath || !GIF_MIME_TYPES.includes(gif.mimetype)) {
+    if (
+      !file ||
+      !tempFilePath ||
+      !COMPRESS_MIME_TYPES.includes(file.mimetype)
+    ) {
       // Get file keys and find each tempfilepath to delete wrong named files
       const fileKeys = Object.keys(req.files as object);
       const tempFilePaths = fileKeys.map(
@@ -31,7 +40,8 @@ export async function compressGifHandler(req: Request, res: Response) {
       return res.status(StatusCodes.BAD_REQUEST).send("Invalid file type");
     }
 
-    const fileType = gif.mimetype.split("/")[1];
+    const fileType = file.mimetype.split("/")[1];
+    console.log({ fileType });
 
     const outputFilePath = `${process.cwd()}/temp/${crypto.randomUUID()}.${fileType}`;
 
@@ -42,16 +52,18 @@ export async function compressGifHandler(req: Request, res: Response) {
     await runFFmpeg({
       input: tempFilePath,
       output: outputFilePath,
-      compression: compression as string,
-      width: width as string,
-      height: height as string,
-      ffmpegCommands: ["-vf",`fps=10,scale=${width}:${height}:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`],
+      ffmpegCommands: getCommand({
+        width,
+        height,
+        compression,
+        fileType,
+      }),
     });
 
     const [data, error] = await getFileSize(outputFilePath);
 
     if (error) throw error;
-    
+
     res.header("fileSize", data);
     res.status(StatusCodes.OK).sendFile(outputFilePath);
   } catch (error: any) {

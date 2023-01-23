@@ -3,8 +3,8 @@ import fileUpload from "express-fileupload";
 import { processRequest } from "zod-express-middleware";
 import { MAX_FIELD_SIZE, MAX_REQUEST_TIME } from "../../utils/constants";
 import { verifyUser } from "../../utils/verifyUser";
-import { compressGifHandler } from "./gif.controller";
-import { compressGifSchema } from "./gif.schema";
+import { compressFileHandler } from "./compress.controller";
+import { compressFileSchema } from "./compress.schema";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post(
   [
     verifyUser,
     // @ts-ignore
-    processRequest(compressGifSchema),
+    processRequest(compressFileSchema),
     fileUpload({
       tempFileDir: "temp",
       useTempFiles: true,
@@ -25,7 +25,7 @@ router.post(
       },
     }),
   ],
-  compressGifHandler
+  compressFileHandler
 );
 
 export default router;

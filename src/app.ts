@@ -2,8 +2,9 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import logger from "./utils/logger";
-import videoRoute from "./modules/videos/video.route";
-import gifRoute from "./modules/gifs/gif.route";
+// import videoRoute from "./modules/videos/video.route";
+// import gifRoute from "./modules/gifs/gif.route";
+import compressRoute from "./modules/compress/compress.route";
 import helmet from "helmet";
 import compression from "compression";
 
@@ -20,8 +21,8 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
-app.use("/api/videos", videoRoute);
-app.use("/api/gifs", gifRoute);
+// app.use("/api/videos", videoRoute);
+app.use("/api/file", compressRoute);
 
 const server = app.listen(PORT, () => {
   logger.info(`Server listening at https://localhost:${PORT}`);
