@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import logger from "./utils/logger";
 import videoRoute from "./modules/videos/video.route";
+import gifRoute from "./modules/gifs/gif.route";
 import helmet from "helmet";
 import compression from "compression";
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(helmet());
 
 app.use("/api/videos", videoRoute);
+app.use("/api/gifs", gifRoute);
 
 const server = app.listen(PORT, () => {
   logger.info(`Server listening at https://localhost:${PORT}`);
