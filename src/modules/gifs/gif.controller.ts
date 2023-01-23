@@ -45,7 +45,7 @@ export async function compressGifHandler(req: Request, res: Response) {
       compression: compression as string,
       width: width as string,
       height: height as string,
-      ffmpegCommands: ["-vf", "scale=320:-1:flags=lanczos,fps=15"],
+      ffmpegCommands: ["-vf",`fps=10,scale=${width}:${height}:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`],
     });
 
     const [data, error] = await getFileSize(outputFilePath);
