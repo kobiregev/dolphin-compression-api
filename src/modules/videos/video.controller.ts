@@ -50,7 +50,7 @@ export async function compressVideoHandler(
 
     if (error) throw error;
 
-    res.cookie("fileSize", data);
+    res.setHeader("fileSize", data);
     res.status(StatusCodes.OK).sendFile(outputFilePath);
     // res.status(StatusCodes.OK).send("ok");
   } catch (error: any) {
