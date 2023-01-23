@@ -10,8 +10,7 @@ import { runFFmpeg } from "./video.process";
 import logger from "../../utils/logger";
 import { deleteFiles } from "./video.service";
 import { CompressVideoQuery } from "./video.schema";
-import { stat } from "node:fs/promises";
-import { filesize } from "filesize";
+import { getFileSize } from "../../services/file";
 
 export async function compressVideoHandler(
   req: Request<{}, {}, CompressVideoQuery>,
@@ -30,7 +29,6 @@ export async function compressVideoHandler(
       await deleteFiles(tempFilePath);
       return res.status(StatusCodes.BAD_REQUEST).send("Invalid file type");
     }
-    console.log({ compression });
 
     const fileType = video.mimetype.split("/")[1];
 
@@ -48,9 +46,11 @@ export async function compressVideoHandler(
       compression as string
     );
 
-    const videoStats = await stat(outputFilePath);
-    const fileSize = filesize(videoStats.size, { base: 2, standard: "jedec" }).toString();
-    res.setHeader("fileSize", fileSize);
+    const [data, error] = await getFileSize(outputFilePath);
+
+    if (error) throw error;
+
+    res.cookie("fileSize", data);
     res.status(StatusCodes.OK).sendFile(outputFilePath);
     // res.status(StatusCodes.OK).send("ok");
   } catch (error: any) {
